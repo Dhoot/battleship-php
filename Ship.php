@@ -48,4 +48,9 @@ Class Ship
   public function receiveHit() {
     $this->remainingHits--;
   }
+
+  // mutator to alter value of isSunk
+  public function sink() {
+    $this->isSunk = true;
+  }
 }

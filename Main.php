@@ -92,8 +92,8 @@ function report_attack($result) {
 clear_terminal();
 
 // create boards for both players
-$board = new Board();
-$board2 = new Board();
+$board = new Board('I belong to p1');
+$board2 = new Board('I belong to p2');
 
 // player 1 must position her ships on her board
 $board->displayBoard();
@@ -111,14 +111,14 @@ clear_terminal();
 $game_over = false;
 while($game_over === false) {
   // player 1 launches an attack and result is reported
-  $result = launch_attack(1, $board2, $board);
+  $result = launch_attack(1, $board, $board2);
   report_attack($result);
 
   // player 2 launches an attack and result is reported
-  $result = launch_attack(2, $board, $board2);
+  $result = launch_attack(2, $board2, $board);
   report_attack($result);
 
   // check if game has ended
   $game_over = is_game_over($board, $board2);
 }
-/* ----- End battleship program ----- */
+/* ----- end battleship program ----- */

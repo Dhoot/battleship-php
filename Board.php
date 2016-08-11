@@ -13,7 +13,7 @@ Class Board
   private $xAxisLabel = array("A","B","C","D","E","F","G","H","I","J");
 
   // the board constructor
-  function __construct()
+  function __construct($mssg)
   {
     $this->gameBoard = array();
     $this->initSquares();
@@ -224,8 +224,10 @@ Class Board
 
       // report the hit
       $report_string = $this->xAxisLabel[$posX] . ($posY + 1) . ': ' . 'Hit.';
-      if ($ship->getRemainingHits() === 0)
+      if ($ship->getRemainingHits() === 0):
+        $ship->sink();
         $report_string .= "\n" . 'You sank the ' . $ship->getName() . '.';
+      endif;
       return $report_string;
 
     // return false if user input invalid coordinates
