@@ -82,12 +82,6 @@ function launch_attack($player_number, $player_board, $opponent_board) {
   return $valid_attack;
 }
 
-// print to the console the event that transpired.
-function report_attack($result) {
-  clear_terminal();
-  echo $result . "\n";
-}
-
 /* ----- begin battleship program ----- */
 clear_terminal();
 
@@ -107,16 +101,21 @@ readline('Player 2 prepare to place your ships. Player 1 don\'t peek. Press Ente
 $board2->placeShips();
 clear_terminal();
 
-// the game loop begins
+// the game loop
 $game_over = false;
+$result = '';
 while($game_over === false) {
-  // player 1 launches an attack and result is reported
+  // player 1 launches an attack and the result is reported
+  clear_terminal();
+  echo $result . "\n";
+  $board2->attackVisualizer();
   $result = launch_attack(1, $board, $board2);
-  report_attack($result);
 
-  // player 2 launches an attack and result is reported
+  // player 2 launches an attack and the result is reported
+  clear_terminal();
+  echo $result . "\n";
+  $board->attackVisualizer();
   $result = launch_attack(2, $board2, $board);
-  report_attack($result);
 
   // check if game has ended
   $game_over = is_game_over($board, $board2);

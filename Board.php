@@ -207,11 +207,14 @@ Class Board
     $posY = intval($choice[1]);
     $posY = $posY - 1;
 
+    if ($posX === false)
+      return false;
+
     // report attacks that have missed all opponent ships
     $square = $this->gameBoard[$posX][$posY];
     if ($this->isLegalSquare($posX, $posY) && !$square->getUnderShip()):
       $square->setWasAttacked();
-      return $this->xAxisLabel[$posX] . ($posY + 1) . ': ' . 'Miss.';
+      return $this->xAxisLabel[$posX] . ($posY + 1) . ': ' . 'Miss.' . "\n";
 
     // process the ship that was hit and report the incident
     elseif ($this->isLegalSquare($posX, $posY) && $square->getUnderShip()):
@@ -223,10 +226,10 @@ Class Board
       $ship->receiveHit();
 
       // report the hit
-      $report_string = $this->xAxisLabel[$posX] . ($posY + 1) . ': ' . 'Hit.';
+      $report_string = $this->xAxisLabel[$posX] . ($posY + 1) . ': ' . 'Hit.' . "\n";
       if ($ship->getRemainingHits() === 0):
         $ship->sink();
-        $report_string .= "\n" . 'You sank the ' . $ship->getName() . '.';
+        $report_string .= 'You sank the ' . $ship->getName() . '.' . "\n";
       endif;
       return $report_string;
 
@@ -269,6 +272,32 @@ Class Board
       for ($j = 0; $j < 10; $j++)
         echo $this->gameBoard[$i][$j]->displaySquare() . ' ';
 
+      echo '|' . "\n";
+    }
+
+    echo '     ---------------------' . "\n";
+  }
+
+  // display version of board with fog of war applied
+  public function attackVisualizer() {
+    echo '     ---------------------' . "\n";
+    echo '    | 1 2 3 4 5 6 7 8 9 10|' . "\n";
+    echo '     ---------------------' . "\n";
+
+    // print the x-axis labels and the state of each square
+    for ($i = 0; $i < 10; $i++) {
+      echo '| ' . $this->xAxisLabel[$i] . ' | ';
+
+      for ($j = 0; $j < 10; $j++) {
+        $square_state = $this->gameBoard[$i][$j]->displaySquare();
+
+        // apply fog of war
+        if ($square_state === 'H'):
+          echo '3 ';
+        else:
+          echo $square_state . ' ';
+        endif;
+      }
       echo '|' . "\n";
     }
 

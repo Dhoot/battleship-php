@@ -21,13 +21,13 @@ Class Square
   // display square state in the CLI
   public function displaySquare() {
     if($this->underShip && $this->wasAttacked):
-      echo 'X';
+      return 'X';
     elseif($this->underShip):
-      echo 'H';
+      return 'H';
     elseif($this->wasAttacked):
-      echo '-';
+      return '-';
     else:
-      echo '3';
+      return '3';
     endif;
   }
 
