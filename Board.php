@@ -187,21 +187,13 @@ Class Board
     }
 
     // finally, if no squares are already occupied, place the ship
-    foreach ($squares as $square)
+    foreach ($squares as $square):
       $square->setUnderShip();
+      $square->setShipName($ship->getName());
+    endforeach;
 
     // show the player the board configuration after each piece is placed
     $this->displayBoard();
-  }
-
-  // accessor function for the array of squares (i.e. the board)
-  public function getBoard() {
-    return $this->gameBoard;
-  }
-
-  // accessor method to return ships array
-  public function getShips() {
-    return $this->ships;
   }
 
   // receives and processes an attack on this board
@@ -215,20 +207,51 @@ Class Board
     $posY = intval($choice[1]);
     $posY = $posY - 1;
 
-    // report attacks that have missed all ships
-    if ($this->isLegalSquare($posX, $posY) && !$this->gameBoard[$posX][$posY]->getUnderShip()):
-      $this->gameBoard[$posX][$posY]->setWasAttacked();
+    // report attacks that have missed all opponent ships
+    $square = $this->gameBoard[$posX][$posY];
+    if ($this->isLegalSquare($posX, $posY) && !$square->getUnderShip()):
+      $square->setWasAttacked();
       return $this->xAxisLabel[$posX] . ($posY + 1) . ': ' . 'Miss.';
 
-    // report attacks that have hit a ship
-    elseif ($this->isLegalSquare($posX, $posY) && $this->gameBoard[$posX][$posY]->getUnderShip()):
-      $this->gameBoard[$posX][$posY]->setWasAttacked();
-      return $this->xAxisLabel[$posX] . ($posY + 1) . ': ' . 'Hit.';
+    // process the ship that was hit and report the incident
+    elseif ($this->isLegalSquare($posX, $posY) && $square->getUnderShip()):
+      $square->setWasAttacked();
+
+      // process the hit
+      $name = $square->getShipName();
+      $ship = $this->getShipByName($name);
+      $ship->receiveHit();
+
+      // report the hit
+      $report_string = $this->xAxisLabel[$posX] . ($posY + 1) . ': ' . 'Hit.';
+      if ($ship->getRemainingHits() === 0)
+        $report_string .= "\n" . 'You sank the ' . $ship->getName() . '.';
+      return $report_string;
 
     // return false if user input invalid coordinates
     else:
       return false;
     endif;
+  }
+
+  // accessor function for the array of squares (i.e. the board)
+  public function getBoard() {
+    return $this->gameBoard;
+  }
+
+  // accessor method to return ships array
+  public function getShips() {
+    return $this->ships;
+  }
+
+  // access method for single ship
+  public function getShipByName($name) {
+    foreach($this->ships as $ship):
+      if ($ship->getName() === $name)
+        return $ship;
+    endforeach;
+
+    return false;
   }
 
   // display board state in the CLI
@@ -240,9 +263,10 @@ Class Board
     // print the x-axis labels and the state of each square
     for ($i = 0; $i < 10; $i++) {
       echo '| ' . $this->xAxisLabel[$i] . ' | ';
-      for ($j = 0; $j < 10; $j++) {
+
+      for ($j = 0; $j < 10; $j++)
         echo $this->gameBoard[$i][$j]->displaySquare() . ' ';
-      }
+
       echo '|' . "\n";
     }
 

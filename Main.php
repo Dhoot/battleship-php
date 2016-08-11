@@ -107,7 +107,7 @@ readline('Player 2 prepare to place your ships. Player 1 don\'t peek. Press Ente
 $board2->placeShips();
 clear_terminal();
 
-// the game begins
+// the game loop begins
 $game_over = false;
 while($game_over === false) {
   // player 1 launches an attack and result is reported
@@ -121,3 +121,4 @@ while($game_over === false) {
   // check if game has ended
   $game_over = is_game_over($board, $board2);
 }
+/* ----- End battleship program ----- */

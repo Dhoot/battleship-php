@@ -15,9 +15,6 @@ Class Ship
   // when all squares a ship occupies have been attacked, the ship sinks
   private $isSunk;
 
-  // each ship is required to keep track of which squares it occupies
-  private $squares = array();
-
   // ship constuctor
   public function __construct($name, $size)
   {
@@ -37,8 +34,18 @@ Class Ship
     return $this->size;
   }
 
+  // accessor for remainingHits
+  public function getRemainingHits() {
+    return $this->remainingHits;
+  }
+
   // accessor for isSunk
   public function getIsSunk() {
     return $this->isSunk;
+  }
+
+  // decrements value of remainingHits
+  public function receiveHit() {
+    $this->remainingHits--;
   }
 }
