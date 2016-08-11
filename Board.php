@@ -13,7 +13,7 @@ Class Board
   private $xAxisLabel = array("A","B","C","D","E","F","G","H","I","J");
 
   // the board constructor
-  function __construct()
+  function __construct($mssg)
   {
     $this->gameBoard = array();
     $this->initSquares();
@@ -38,14 +38,11 @@ Class Board
 
   // set ship position via user input in CLI
   public function placeShips() {
-
     foreach ($this->ships as $ship) {
 
       // ensure the ship is being placed legally
       $isLegalRange = false;
       while ($isLegalRange === false) {
-
-        // inform the user of which ship she is placing
         echo "\n" . 'Place your ' . $ship->getName() . ' (size = ' . $ship->getSize() . ')' . "\n";
 
         // set endpoint A and ensure it is a legal board position
@@ -68,15 +65,15 @@ Class Board
 
   // select first endpoint for ship positioning
   private function setEndpoint($ship_name, $endpoint) {
-
-    // user will input endpoint choice
-    if ($endpoint === 'A') {
+    if ($endpoint === 'A'):
       $promptString = 'Select starting point for your ' . $ship_name . ': ';
-    } elseif ($endpoint === 'B') {
+    elseif ($endpoint === 'B'):
       $promptString = 'Select ending point for your ' . $ship_name . ': ';
-    } else {
+    else:
       return false;
-    }
+    endif;
+
+    // user will input choices
     $choice = readline($promptString);
 
     // weed out poor input strings and prepare string for conversion to int
@@ -91,7 +88,7 @@ Class Board
     $posY = $posY - 1;
 
     // validate coordinates
-    if ($this->isLegalSquare($posX, $posY))
+    if ($this->isLegalSquare($posX, $posY) && !$this->gameBoard[$posX][$posY]->getUnderShip())
       return $posX . $posY;
 
     // deliver an error message as required
@@ -101,22 +98,21 @@ Class Board
 
   // prepare choice string for conversion to coordinates
   private function processChoiceString($choice) {
-
     // remove all whitespace
     $choice = preg_replace('/\s+/', '', $choice);
 
     // break user input into seperate coordinate strings
     $length = strlen($choice);
     switch ($length) {
-        case 2:
-            $choice = str_split($choice);
-            break;
-        case 3: $choice = str_split($choice);
-            $choice[1] = $choice[1] . $choice[2];
-            break;
-        default:
-            echo 'Please select a square of the form \'G7\', \'A1\', etc' . "\n";
-            return false;
+      case 2:
+          $choice = str_split($choice);
+          break;
+      case 3: $choice = str_split($choice);
+          $choice[1] = $choice[1] . $choice[2];
+          break;
+      default:
+          echo 'Please select a square of the form \'G7\', \'A1\', etc' . "\n";
+          return false;
     }
 
     // allow user to use lowercase characters when specifying coordinates
@@ -125,24 +121,20 @@ Class Board
     return $choice;
   }
 
-  // verify two conditions that qualify legal coordinates
+  // verify range to qualify legal coordinates
   private function isLegalSquare($posX, $posY) {
-
-    // ensure coordinates are within the legal range
-    if (!(is_int($posX) && $posX >= 0 && $posX < 10))
+    if (!($posX >= 0 && $posX < 10))
       return false;
 
-    if (!(is_int($posY) && $posY >= 0 && $posY < 10))
+    if (!($posY >= 0 && $posY < 10))
       return false;
 
-    // ensure coordinates will not describe a position that is already occupied
-    return !$this->gameBoard[$posX][$posY]->getUnderShip();
+    // this is indeed a legal square on the board
+    return true;
   }
 
   // check that endpoints form a segment that is legally represents a ship
   private function validateEndpointSegment($pointA, $pointB, $ship) {
-
-    // ensure the endpoints are not the same point
     if ($pointA === $pointB)
       return false;
 
@@ -150,20 +142,18 @@ Class Board
     if ($pointA[0] !== $pointB[0] && $pointA[1] !== $pointB[1])
       return false;
 
-    // ensure endpoints form a segment that is the same size as the ship
-    if ($pointA[0] === $pointB[0]) {
-      // endpoints lie on same row; proceed to calculate length of segment
+    // endpoints must form a straight line segment equal in length to the ship
+    if ($pointA[0] === $pointB[0]):
       $orientation = 'row';
       $max = max($pointA[1], $pointB[1]);
       $min = min($pointA[1], $pointB[1]);
-    } else {
-      // endpoints lie on same column; proceed to calculate length of segment
+    else:
       $orientation = 'column';
       $max = max($pointA[0], $pointB[0]);
       $min = min($pointA[0], $pointB[0]);
-    }
+    endif;
 
-    // length calculation
+    // length verification
     if ($max - $min + 1 != $ship->getSize()) {
       echo 'The ship won\'t fit here. ';
       return false;
@@ -174,40 +164,99 @@ Class Board
     $row = $pointA[0];
     $column = $pointA[1];
 
-    // get squares
+    // get array of target squares
     while ($min <= $max) {
 
+      // the ship is being placed along 1 row and multiple columns
       if ($orientation === 'row') {
-
         if ($this->gameBoard[$row][$min]->getUnderShip() === true)
           return false;
         else
           $squares[] = $this->gameBoard[$row][$min];
 
-      } else { // orientation === 'column'
-
-        if ($this->gameBoard[$min][$column]->getUnderShip() === true) {
+      // the ship is being placed along 1 column and multiple rows
+      } else {
+        if ($this->gameBoard[$min][$column]->getUnderShip() === true)
           return false;
-        } else {
+        else
           $squares[] = $this->gameBoard[$min][$column];
-        }
       }
 
+      // prepare for next square in the row or column
       $min = $min + 1;
     }
 
-    // finally, if no squares are occupied, place the ship
-    foreach ($squares as $square) {
+    // finally, if no squares are already occupied, place the ship
+    foreach ($squares as $square):
       $square->setUnderShip();
-    }
+      $square->setShipName($ship->getName());
+    endforeach;
 
     // show the player the board configuration after each piece is placed
     $this->displayBoard();
   }
 
+  // receives and processes an attack on this board
+  public function receiveAttack($choice) {
+    $choice = $this->processChoiceString($choice);
+    if ($choice === false)
+      return false;
+
+    // convert coordinates to int values
+    $posX = array_search($choice[0], $this->xAxisLabel);
+    $posY = intval($choice[1]);
+    $posY = $posY - 1;
+
+    if ($posX === false)
+      return false;
+
+    // report attacks that have missed all opponent ships
+    $square = $this->gameBoard[$posX][$posY];
+    if ($this->isLegalSquare($posX, $posY) && !$square->getUnderShip()):
+      $square->setWasAttacked();
+      return $this->xAxisLabel[$posX] . ($posY + 1) . ': ' . 'Miss.' . "\n";
+
+    // process the ship that was hit and report the incident
+    elseif ($this->isLegalSquare($posX, $posY) && $square->getUnderShip()):
+      $square->setWasAttacked();
+
+      // process the hit
+      $name = $square->getShipName();
+      $ship = $this->getShipByName($name);
+      $ship->receiveHit();
+
+      // report the hit
+      $report_string = $this->xAxisLabel[$posX] . ($posY + 1) . ': ' . 'Hit.' . "\n";
+      if ($ship->getRemainingHits() === 0):
+        $ship->sink();
+        $report_string .= 'You sank the ' . $ship->getName() . '.' . "\n";
+      endif;
+      return $report_string;
+
+    // return false if user input invalid coordinates
+    else:
+      return false;
+    endif;
+  }
+
   // accessor function for the array of squares (i.e. the board)
   public function getBoard() {
     return $this->gameBoard;
+  }
+
+  // accessor method to return ships array
+  public function getShips() {
+    return $this->ships;
+  }
+
+  // access method for single ship
+  public function getShipByName($name) {
+    foreach($this->ships as $ship):
+      if ($ship->getName() === $name)
+        return $ship;
+    endforeach;
+
+    return false;
   }
 
   // display board state in the CLI
@@ -219,8 +268,35 @@ Class Board
     // print the x-axis labels and the state of each square
     for ($i = 0; $i < 10; $i++) {
       echo '| ' . $this->xAxisLabel[$i] . ' | ';
-      for ($j = 0; $j < 10; $j++) {
+
+      for ($j = 0; $j < 10; $j++)
         echo $this->gameBoard[$i][$j]->displaySquare() . ' ';
+
+      echo '|' . "\n";
+    }
+
+    echo '     ---------------------' . "\n";
+  }
+
+  // display version of board with fog of war applied
+  public function attackVisualizer() {
+    echo '     ---------------------' . "\n";
+    echo '    | 1 2 3 4 5 6 7 8 9 10|' . "\n";
+    echo '     ---------------------' . "\n";
+
+    // print the x-axis labels and the state of each square
+    for ($i = 0; $i < 10; $i++) {
+      echo '| ' . $this->xAxisLabel[$i] . ' | ';
+
+      for ($j = 0; $j < 10; $j++) {
+        $square_state = $this->gameBoard[$i][$j]->displaySquare();
+
+        // apply fog of war
+        if ($square_state === 'H'):
+          echo '3 ';
+        else:
+          echo $square_state . ' ';
+        endif;
       }
       echo '|' . "\n";
     }
