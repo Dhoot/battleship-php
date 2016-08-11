@@ -37,10 +37,8 @@ Class Ship
     return $this->size;
   }
 
-  // debugging method to examine the properties of this ship
-  public function testShip() {
-    echo "\n" . 'testing ship:' . "\n";
-    var_dump(get_object_vars($this));
+  // accessor for isSunk
+  public function getIsSunk() {
+    return $this->isSunk;
   }
-
 }

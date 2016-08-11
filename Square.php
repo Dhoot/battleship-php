@@ -2,7 +2,6 @@
 
 Class Square
 {
-
   // this boolean property identifies whether a ship is occupying this square
   private $underShip;
 
@@ -28,6 +27,8 @@ Class Square
       echo 'X';
     elseif($this->underShip):
       echo 'H';
+    elseif($this->wasAttacked):
+      echo '-';
     else:
       echo '3';
     endif;
@@ -43,10 +44,8 @@ Class Square
     $this->underShip = true;
   }
 
-  // debugging method to examine the properties of this square
-  public function testSquare() {
-    echo "\n" . 'testing square:' . "\n";
-    var_dump(get_object_vars($this));
+  // mutator to alter wasAttacked value
+  public function setWasAttacked() {
+    $this->wasAttacked = true;
   }
-
 }
