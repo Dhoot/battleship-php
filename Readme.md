@@ -1,7 +1,5 @@
 # battleship-php
 
-
-<h1>battleship-php</h1>
 <p>Based on the popular board/pen-and-paper game, battleship-php is an implementation of Battleship via Command Line Interface.<p>
 
 <h2>Getting Started</h2>
