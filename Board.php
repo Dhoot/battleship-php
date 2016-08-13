@@ -102,6 +102,7 @@ Class Board
     $choice = preg_replace('/\s+/', '', $choice);
 
     // break user input into seperate coordinate strings
+    $mssg = 'Please select a square of the form \'G7\', \'A1\', etc' . "\n";
     $length = strlen($choice);
     switch ($length) {
       case 2:
@@ -111,12 +112,19 @@ Class Board
           $choice[1] = $choice[1] . $choice[2];
           break;
       default:
-          echo 'Please select a square of the form \'G7\', \'A1\', etc' . "\n";
+          echo $mssg;
           return false;
     }
 
     // allow user to use lowercase characters when specifying coordinates
     $choice[0] = strtoupper($choice[0]);
+
+    // force user to use letter when declaring coordinates
+    if (is_numeric($choice[0]) || !array_search($choice[0], $this->xAxisLabel)):
+      echo $mssg;
+      return false;
+    endif;
+
 
     return $choice;
   }
