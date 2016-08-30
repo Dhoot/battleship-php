@@ -4,23 +4,11 @@ require_once 'Ship.php';
 require_once 'Square.php';
 require_once 'Board.php';
 
-// account for Windows machines
-define('OS_TYPE', strtoupper(substr(PHP_OS, 0, 3)));
-
-// clear terminal so opponent cannot see the user's board configuration
-function clear_terminal() {
-  if (OS_TYPE === 'WIN'):
-    system('cls');
-  else:
-    system('clear');
-  endif;
-}
-
 // allow user to view her own board before attacking
 function peek($board) {
    $board->displayBoard();
    readline('Press Enter to hide board:');
-   clear_terminal();
+   Board::clear_terminal();
 }
 
 // check for game terminating conditions
@@ -43,7 +31,19 @@ function is_game_over($board, $board2) {
     endif;
   }
 
-  // determine if game is over and announce results accordingly
+  // determine if game is over, if so, announce it
+  if ($player_one_loss || $player_two_loss):
+    Board::clear_terminal();
+    echo 'Game Over!' . "\n\n";
+    echo '        Player 1 Board' . "\n";
+    $board->displayBoard();
+    echo "\n";
+    echo '        Player 2 Board' . "\n";
+    $board2->displayBoard();
+    echo 'Result: ';
+  endif;
+
+  // announce game outcome
   if ($player_one_loss && $player_two_loss):
     echo 'It\'s a tie!';
     return;
@@ -83,39 +83,42 @@ function launch_attack($player_number, $player_board, $opponent_board) {
 }
 
 /* ----- begin battleship program ----- */
-clear_terminal();
+Board::clear_terminal();
 
 // create boards for both players
-$board = new Board('I belong to p1');
-$board2 = new Board('I belong to p2');
+$board = new Board();
+$board2 = new Board();
 
 // player 1 must position her ships on her board
 $board->displayBoard();
 readline('Player 1 prepare to place your ships. Player 2 don\'t peek. Press Enter to continue:');
 $board->placeShips();
-clear_terminal();
+Board::clear_terminal();
 
 // player 2 must position her ships on her board
 $board2->displayBoard();
 readline('Player 2 prepare to place your ships. Player 1 don\'t peek. Press Enter to continue:');
 $board2->placeShips();
-clear_terminal();
+Board::clear_terminal();
 
 // the game loop
 $game_over = false;
-$result = '';
+$p1Report = '';
+$p2Report = '';
 while($game_over === false) {
-  // player 1 launches an attack and the result is reported
-  clear_terminal();
-  echo $result . "\n";
+  // Result of previous attack is reported, and player 1 launches another attack
+  Board::clear_terminal();
+  if ($p1Report)
+    echo $p1Report . "\n";
   $board2->attackVisualizer();
-  $result = launch_attack(1, $board, $board2);
+  $p1Report = launch_attack(1, $board, $board2);
 
-  // player 2 launches an attack and the result is reported
-  clear_terminal();
-  echo $result . "\n";
+  // Result of previous attack is reported, and player 2 launches another attack
+  Board::clear_terminal();
+  if ($p2Report)
+    echo $p2Report . "\n";
   $board->attackVisualizer();
-  $result = launch_attack(2, $board2, $board);
+  $p2Report = launch_attack(2, $board2, $board);
 
   // check if game has ended
   $game_over = is_game_over($board, $board2);

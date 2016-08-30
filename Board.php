@@ -13,7 +13,7 @@ Class Board
   private $xAxisLabel = array("A","B","C","D","E","F","G","H","I","J");
 
   // the board constructor
-  function __construct($mssg)
+  function __construct()
   {
     $this->gameBoard = array();
     $this->initSquares();
@@ -101,7 +101,7 @@ Class Board
     $choice = preg_replace('/\s+/', '', $choice);
 
     // break user input into seperate coordinate strings
-    $mssg = 'Please select a square of the form \'G7\', \'A1\', etc' . "\n";
+    $mssg = 'Please select a square of the form \'G7\', \'A10\', etc' . "\n";
     $length = strlen($choice);
     switch ($length) {
       case 2:
@@ -201,6 +201,7 @@ Class Board
     endforeach;
 
     // show the player the board configuration after each piece is placed
+    self::clear_terminal();
     $this->displayBoard();
   }
 
@@ -288,6 +289,7 @@ Class Board
 
   // display version of board with fog of war applied
   public function attackVisualizer() {
+    echo '            Enemy' . "\n";
     echo '     ---------------------' . "\n";
     echo '    | 1 2 3 4 5 6 7 8 9 10|' . "\n";
     echo '     ---------------------' . "\n";
@@ -311,5 +313,15 @@ Class Board
 
     echo '     ---------------------' . "\n";
   }
+
+  // clear terminal for presentation and information hiding
+  public static function clear_terminal() {
+    if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'):
+      system('cls');
+    else:
+      system('clear');
+    endif;
+  }
+
 
 }
