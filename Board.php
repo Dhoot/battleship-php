@@ -119,6 +119,12 @@ Class Board
     // allow user to use lowercase characters when specifying coordinates
     $choice[0] = strtoupper($choice[0]);
 
+    // filter out non-numerical y-axis specification input
+    if (!is_numeric($choice[1])):
+      echo $mssg;
+      return false;
+    endif;
+
     // force user to use letter when declaring coordinates
     if (is_numeric($choice[0]) || !in_array($choice[0], $this->xAxisLabel)):
       echo $mssg;
