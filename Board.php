@@ -39,7 +39,6 @@ Class Board
   // set ship position via user input in CLI
   public function placeShips() {
     foreach ($this->ships as $ship) {
-
       // ensure the ship is being placed legally
       $isLegalRange = false;
       while ($isLegalRange === false) {
@@ -108,7 +107,8 @@ Class Board
       case 2:
           $choice = str_split($choice);
           break;
-      case 3: $choice = str_split($choice);
+      case 3:
+          $choice = str_split($choice);
           $choice[1] = $choice[1] . $choice[2];
           break;
       default:
@@ -120,7 +120,7 @@ Class Board
     $choice[0] = strtoupper($choice[0]);
 
     // force user to use letter when declaring coordinates
-    if (is_numeric($choice[0]) || !array_search($choice[0], $this->xAxisLabel)):
+    if (is_numeric($choice[0]) || !in_array($choice[0], $this->xAxisLabel)):
       echo $mssg;
       return false;
     endif;
@@ -162,10 +162,10 @@ Class Board
     endif;
 
     // length verification
-    if ($max - $min + 1 != $ship->getSize()) {
+    if ($max - $min + 1 != $ship->getSize()):
       echo 'The ship won\'t fit here. ';
       return false;
-    }
+    endif;
 
     // get squares between endpoints
     $squares = array();
@@ -176,19 +176,19 @@ Class Board
     while ($min <= $max) {
 
       // the ship is being placed along 1 row and multiple columns
-      if ($orientation === 'row') {
+      if ($orientation === 'row'):
         if ($this->gameBoard[$row][$min]->getUnderShip() === true)
           return false;
         else
           $squares[] = $this->gameBoard[$row][$min];
 
       // the ship is being placed along 1 column and multiple rows
-      } else {
+      else:
         if ($this->gameBoard[$min][$column]->getUnderShip() === true)
           return false;
         else
           $squares[] = $this->gameBoard[$min][$column];
-      }
+      endif;
 
       // prepare for next square in the row or column
       $min = $min + 1;

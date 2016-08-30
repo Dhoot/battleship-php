@@ -28,19 +28,19 @@ function is_game_over($board, $board2) {
   // check if all of player 1's ships were sunk
   $player_one_loss = true;
   foreach($board->getShips() as $ship) {
-    if ($ship->getIsSunk() !== true) {
+    if ($ship->getIsSunk() !== true):
       $player_one_loss = false;
       break;
-    }
+    endif;
   }
 
   // check if all of player 2's ships were sunk
   $player_two_loss = true;
   foreach($board2->getShips() as $ship) {
-    if ($ship->getIsSunk() !== true) {
+    if ($ship->getIsSunk() !== true):
       $player_two_loss = false;
       break;
-    }
+    endif;
   }
 
   // determine if game is over and announce results accordingly
